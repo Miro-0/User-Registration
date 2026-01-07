@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-import os  # Added for environment variables
-from werkzeug.security import generate_password_hash  # Added for password hashing
+import os 
+from werkzeug.security import generate_password_hash  
 
 app = Flask(__name__)
 
@@ -94,3 +94,4 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Creates tables if they don't exist
     app.run(debug=True)
+
