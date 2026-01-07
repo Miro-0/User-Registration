@@ -1,4 +1,3 @@
-Try AI directly in your favorite apps … Use Gemini to generate drafts and refine content, plus get Gemini Pro with access to Google's next-gen AI for ₱1,100 ₱360 for 3 months
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -93,3 +92,4 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Creates tables if they don't exist
     app.run(debug=True)
+
