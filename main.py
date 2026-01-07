@@ -10,8 +10,7 @@ app = Flask(__name__)
 app.secret_key = 'Repoyo'  # ⚠ Consider moving this to an env var for security in production
 
 # ================= DATABASE CONFIGURATION =================
-# Use Railway's DATABASE_URL env var (includes host, port, user, password, etc.)
-# Fallback to local MySQL for testing
+
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'mysql+pymysql://root:@localhost/registration_db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -94,4 +93,5 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Creates tables if they don't exist
     app.run(debug=True)
+
 
