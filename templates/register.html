@@ -126,7 +126,7 @@
     <h2>User Registration</h2>
     <p class="subtitle">Please fill in your information</p>
 
-    <form method="POST" action="{{ url_for('register') }}" onsubmit="return checkPassword()">
+    <form action="/register" method="POST" onsubmit="return checkPassword()">
 
       <div class="form-group">
         <label for="Username">Username</label>
@@ -191,4 +191,5 @@ function checkPassword() {
 </script>
 
 </body>
+
 </html>
