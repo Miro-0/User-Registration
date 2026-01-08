@@ -1,17 +1,15 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-import os 
-from werkzeug.security import generate_password_hash  
 
 app = Flask(__name__)
 
 # Secret key for flash messages
-app.secret_key = 'Repoyo'  # ⚠ Consider moving this to an env var for security in production
+app.secret_key = 'Repoyo'
 
 # ================= DATABASE CONFIGURATION =================
-
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'mysql+pymysql://root:@localhost/registration_db')
+# Make sure your MySQL database exists and credentials are correct
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/registration_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -36,6 +34,7 @@ class User(db.Model):
 def home():
     return render_template('register.html')
 
+
 @app.route('/register', methods=['POST'])
 def register():
     try:
@@ -56,9 +55,6 @@ def register():
         # Convert birthdate string to date object
         birthdate = datetime.strptime(birthdate_str, "%Y-%m-%d").date()
 
-        # Hash the password for security
-        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
-
         # Create new user
         new_user = User(
             username=username,
@@ -66,7 +62,7 @@ def register():
             birthdate=birthdate,
             cellphone_number=phone,
             address=address,
-            password=hashed_password  # Store hashed password
+            password=password  # ⚠ In production, hash this!
         )
 
         # Save to database
@@ -80,18 +76,19 @@ def register():
         flash(f'Database Error: {str(e)}', 'error')
         return redirect(url_for('home'))
 
+
 @app.route('/success')
 def success():
     return render_template('success.html')
+
 
 @app.route('/users')
 def view_users():
     all_users = User.query.all()
     return render_template('users.html', users=all_users)
 
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Creates tables if they don't exist
     app.run(debug=True)
-
-
