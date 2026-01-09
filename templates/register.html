@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <style>
+    /* ... existing styles ... */
     body {
         min-height: 100vh;
         background-image: url("{{ url_for('static', filename='images/photo.jpg') }}");
@@ -12,11 +12,7 @@
         background-attachment: fixed;
     }
 
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     .container {
         width: 100%;
@@ -38,86 +34,19 @@
         color: #f0f0f0;
     }
 
-    h2 {
-        text-align: center;
-        color: #ffffff;
-        margin-bottom: 10px;
-    }
-
-    .subtitle {
-        text-align: center;
-        color: #cccccc;
-        margin-bottom: 30px;
-        font-size: 14px;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    label {
-        display: block;
-        color: #ddd;
-        margin-bottom: 8px;
-        font-weight: 500;
-        font-size: 14px;
-    }
-
-    input {
-        width: 100%;
-        padding: 12px 15px;
-        border: 2px solid #333;
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.1);
-        color: #fff;
-        font-size: 15px;
-        transition: all 0.3s ease;
-    }
-
-    input:focus {
-        border-color: #667eea;
-        outline: none;
-        background: rgba(255, 255, 255, 0.15);
-    }
-
-    .btn-submit {
-        width: 100%;
-        padding: 14px;
-        background: darkgrey;
-        color: white;
-        border: none;
-        font-size: 16px;
-        border-radius: 8px;
-        font-weight: 600;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        cursor: pointer;
-        margin-top: 10px;
-    }
-
-    .btn-submit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(118, 75, 162, 0.5);
-    }
-
-    .gender-group {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 20px;
-    }
-
-    .gender-group label {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        font-size: 14px;
-        color: #ddd;
-    }
+    h2 { text-align: center; color: #ffffff; margin-bottom: 10px; }
+    .subtitle { text-align: center; color: #cccccc; margin-bottom: 30px; font-size: 14px; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; color: #ddd; margin-bottom: 8px; font-weight: 500; font-size: 14px; }
+    input { width: 100%; padding: 12px 15px; border: 2px solid #333; border-radius: 8px; background: rgba(255, 255, 255, 0.1); color: #fff; font-size: 15px; }
+    .btn-submit { width: 100%; padding: 14px; background: darkgrey; color: white; border: none; font-size: 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+    .gender-group { display: flex; justify-content: space-between; margin-bottom: 20px; }
+    .gender-group label { display: flex; align-items: center; gap: 5px; font-size: 14px; color: #ddd; }
 </style>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Registration Form</title>
-
 </head>
 <body>
 
@@ -135,9 +64,9 @@
 
       <label for="Gender">Gender</label>
       <div class="gender-group">
-        <label><input type="radio" value="Male" name="Gender"> Male</label>
+        <label><input type="radio" value="Male" name="Gender" required> Male</label>
         <label><input type="radio" value="Female" name="Gender"> Female</label>
-        <label><input type="radio" value="Other" name="Gender" required> Other</label>
+        <label><input type="radio" value="Other" name="Gender"> Other</label>
       </div>
 
       <div class="form-group">
@@ -163,10 +92,10 @@
       <div class="form-group">
         <label for="confirm_password">Confirm Password</label>
         <input type="password" id="confirm_password" name="confirm_password" required>
-        <p id="message" style="color: red; font-size: 14px; margin-top: 5px;"></p>
+        <p id="message" style="font-size: 14px; margin-top: 5px;"></p>
       </div>
 
-      <button href="/success" type="submit" class="btn-submit">Register</button>
+      <button type="submit" class="btn-submit">Register</button>
 
     </form>
   </div>
@@ -191,6 +120,4 @@ function checkPassword() {
 </script>
 
 </body>
-
 </html>
-
