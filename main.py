@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import os
 
 app = Flask(__name__)
 
@@ -8,8 +9,8 @@ app = Flask(__name__)
 app.secret_key = 'Repoyo'
 
 # ================= DATABASE CONFIGURATION =================
-# Make sure your MySQL database exists and credentials are correct
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/registration_db'
+# Uses Railway's environment variable if available, otherwise defaults to local
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'mysql+pymysql://root:@localhost/registration_db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -27,7 +28,7 @@ class User(db.Model):
     password = db.Column(db.String(200), nullable=False)
 
     def __repr__(self):
-        return f'<User {self.address}>'
+        return f'<User {self.username}>'
 
 # ================= ROUTES =================
 @app.route('/')
@@ -62,17 +63,19 @@ def register():
             birthdate=birthdate,
             cellphone_number=phone,
             address=address,
-            password=password  # ⚠ In production, hash this!
+            password=password 
         )
 
         # Save to database
         db.session.add(new_user)
         db.session.commit()
-        flash('Registration successful!', 'success')
+        
+        # Redirecting to the success route
         return redirect(url_for('success'))
 
     except Exception as e:
         db.session.rollback()
+        # This will show you the exact error in your browser or logs
         flash(f'Database Error: {str(e)}', 'error')
         return redirect(url_for('home'))
 
@@ -90,5 +93,5 @@ def view_users():
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # Creates tables if they don't exist
+        db.create_all()
     app.run(debug=True)
