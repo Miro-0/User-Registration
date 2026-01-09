@@ -4,13 +4,15 @@ from datetime import datetime
 import os
 
 app = Flask(__name__)
-
-# Secret key for flash messages
 app.secret_key = 'Repoyo'
 
 # ================= DATABASE CONFIGURATION =================
-# Uses Railway's environment variable if available, otherwise defaults to local
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'mysql+pymysql://root:@localhost/registration_db')
+# Railway uses DATABASE_URL. This logic ensures SQLAlchemy uses the correct driver.
+uri = os.environ.get('DATABASE_URL')
+if uri and uri.startswith("mysql://"):
+    uri = uri.replace("mysql://", "mysql+pymysql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = uri or 'mysql+pymysql://root:@localhost/registration_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -18,7 +20,6 @@ db = SQLAlchemy(app)
 # ================= USER MODEL =================
 class User(db.Model):
     __tablename__ = 'users'
-
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(16), nullable=False)
     gender = db.Column(db.String(10), nullable=False)
@@ -27,19 +28,14 @@ class User(db.Model):
     address = db.Column(db.String(150), nullable=False)
     password = db.Column(db.String(200), nullable=False)
 
-    def __repr__(self):
-        return f'<User {self.username}>'
-
 # ================= ROUTES =================
 @app.route('/')
 def home():
     return render_template('register.html')
 
-
 @app.route('/register', methods=['POST'])
 def register():
     try:
-        # Get form data
         username = request.form.get('Username')
         gender = request.form.get('Gender')
         birthdate_str = request.form.get('Birthday')
@@ -48,15 +44,12 @@ def register():
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
 
-        # Password validation
         if password != confirm_password:
             flash('Passwords do not match!', 'error')
             return redirect(url_for('home'))
 
-        # Convert birthdate string to date object
         birthdate = datetime.strptime(birthdate_str, "%Y-%m-%d").date()
 
-        # Create new user
         new_user = User(
             username=username,
             gender=gender,
@@ -66,32 +59,39 @@ def register():
             password=password 
         )
 
-        # Save to database
         db.session.add(new_user)
         db.session.commit()
-        
-        # Redirecting to the success route
         return redirect(url_for('success'))
 
     except Exception as e:
         db.session.rollback()
-        # This will show you the exact error in your browser or logs
-        flash(f'Database Error: {str(e)}', 'error')
+        print(f"DATABASE ERROR: {e}") # This will show in Railway logs
+        flash(f'Error: {str(e)}', 'error')
         return redirect(url_for('home'))
-
 
 @app.route('/success')
 def success():
     return render_template('success.html')
 
-
 @app.route('/users')
 def view_users():
-    all_users = User.query.all()
-    return render_template('users.html', users=all_users)
+    try:
+        all_users = User.query.all()
+        return render_template('users.html', users=all_users)
+    except Exception as e:
+        return f"Database Error: {e}. Please visit /init-db to create tables."
 
+# EMERGENCY ROUTE: Visit yourwebsite.com/init-db to force table creation
+@app.route('/init-db')
+def init_db():
+    try:
+        db.create_all()
+        return "Tables created successfully! Go back to / and try registering."
+    except Exception as e:
+        return f"Failed to create tables: {e}"
 
 if __name__ == '__main__':
+    # Local development use
     with app.app_context():
         db.create_all()
     app.run(debug=True)
