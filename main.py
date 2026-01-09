@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 from datetime import datetime
 import os
 
@@ -7,12 +8,20 @@ app = Flask(__name__)
 app.secret_key = 'Repoyo'
 
 # ================= DATABASE CONFIGURATION =================
-# Railway uses DATABASE_URL. This logic ensures SQLAlchemy uses the correct driver.
-uri = os.environ.get('DATABASE_URL')
+# Try to find the URL in different Railway variables
+uri = os.environ.get('DATABASE_URL') or os.environ.get('MYSQL_URL')
+
+# Fix connection string for SQLAlchemy
 if uri and uri.startswith("mysql://"):
     uri = uri.replace("mysql://", "mysql+pymysql://", 1)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = uri or 'mysql+pymysql://root:@localhost/registration_db'
+# Default to local if no cloud DB found (Debugging check)
+if not uri:
+    print("WARNING: No DATABASE_URL found. Using localhost.")
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/registration_db'
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = uri
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -65,7 +74,7 @@ def register():
 
     except Exception as e:
         db.session.rollback()
-        print(f"DATABASE ERROR: {e}") # This will show in Railway logs
+        # Show the error on the screen so you can see it on your phone
         flash(f'Error: {str(e)}', 'error')
         return redirect(url_for('home'))
 
@@ -79,19 +88,41 @@ def view_users():
         all_users = User.query.all()
         return render_template('users.html', users=all_users)
     except Exception as e:
-        return f"Database Error: {e}. Please visit /init-db to create tables."
+        return f"Error loading users: {e}"
 
-# EMERGENCY ROUTE: Visit yourwebsite.com/init-db to force table creation
+# ================= DIAGNOSTIC ROUTE =================
+# Visit this route to fix your database
 @app.route('/init-db')
 def init_db():
+    status = []
+    
+    # 1. Check if we found a database URL
+    if uri:
+        status.append(f"✅ FOUND DATABASE URL (starts with {uri[:10]}...)")
+    else:
+        status.append("❌ NO DATABASE URL FOUND! (Did you add the Variable in Railway?)")
+        return "<br>".join(status)
+
+    # 2. Try to connect
+    try:
+        with db.engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+        status.append("✅ CONNECTION SUCCESSFUL")
+    except Exception as e:
+        status.append(f"❌ CONNECTION FAILED: {str(e)}")
+        return "<br>".join(status)
+
+    # 3. Try to create tables
     try:
         db.create_all()
-        return "Tables created successfully! Go back to / and try registering."
+        status.append("✅ TABLES CREATED SUCCESSFULLY")
     except Exception as e:
-        return f"Failed to create tables: {e}"
+        status.append(f"❌ TABLE CREATION FAILED: {str(e)}")
+    
+    status.append("<br><b>You can now try registering again!</b>")
+    return "<br>".join(status)
 
 if __name__ == '__main__':
-    # Local development use
     with app.app_context():
         db.create_all()
     app.run(debug=True)
