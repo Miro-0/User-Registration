@@ -71,5 +71,10 @@ def init_db():
     except Exception as e:
         return f"<h1>Setup Failed</h1><p>Error: {str(e)}</p>"
 
+# --- RAILWAY DEPLOYMENT ADDITIONS ---
+# Get the port from Railway's environment variable, default to 5000 for local development
+port = int(os.environ.get('PORT', 5000))
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Bind to 0.0.0.0 for Railway, disable debug for production
+    app.run(host='0.0.0.0', port=port, debug=False)
