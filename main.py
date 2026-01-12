@@ -3,21 +3,21 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
-# ================= APP CONFIG =================
+# ================= APP SETUP =================
 app = Flask(__name__)
 app.secret_key = "Repoyo"
 
-# ================= DATABASE CONFIG (RAILWAY ONLY) =================
-# These MUST exist in Railway → Flask Service → Variables
-db_user = os.environ["MYSQLUSER"]
-db_pass = os.environ["MYSQLPASSWORD"]
-db_host = os.environ["MYSQLHOST"]
-db_port = os.environ["MYSQLPORT"]
-db_name = os.environ["MYSQLDATABASE"]
+# ================= DATABASE (RAILWAY MYSQL ONLY) =================
+# Railway provides these environment variables
+MYSQL_USER = os.environ["MYSQLUSER"]
+MYSQL_PASSWORD = os.environ["MYSQLPASSWORD"]
+MYSQL_HOST = os.environ["MYSQLHOST"]
+MYSQL_PORT = os.environ["MYSQLPORT"]
+MYSQL_DATABASE = os.environ["MYSQLDATABASE"]
 
 app.config["SQLALCHEMY_DATABASE_URI"] = (
-    f"mysql+pymysql://{db_user}:{db_pass}"
-    f"@{db_host}:{db_port}/{db_name}"
+    f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}"
+    f"@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}"
 )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -30,24 +30,24 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
 
+# ================= CREATE TABLES =================
+with app.app_context():
+    db.create_all()
+
 # ================= ROUTES =================
-@app.route("/", methods=["GET", "POST"])
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+@app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
         username = request.form["username"]
         email = request.form["email"]
         password = request.form["password"]
 
-        if not username or not email or not password:
-            flash("All fields are required", "error")
-            return redirect(url_for("register"))
-
-        existing_user = User.query.filter(
-            (User.username == username) | (User.email == email)
-        ).first()
-
-        if existing_user:
-            flash("Username or email already exists", "error")
+        if User.query.filter_by(username=username).first():
+            flash("Username already exists", "error")
             return redirect(url_for("register"))
 
         hashed_password = generate_password_hash(password)
@@ -62,12 +62,26 @@ def register():
         db.session.commit()
 
         flash("Registration successful!", "success")
-        return redirect(url_for("register"))
+        return redirect(url_for("home"))
 
     return render_template("register.html")
 
-# ================= MAIN =================
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        user = User.query.filter_by(username=username).first()
+
+        if user and check_password_hash(user.password, password):
+            flash("Login successful!", "success")
+            return redirect(url_for("home"))
+        else:
+            flash("Invalid credentials", "error")
+
+    return render_template("login.html")
+
+# ================= RUN =================
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-    app.run(host="0.0.0.0", port=5000)
+    app.run(debug=True)
