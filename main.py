@@ -10,9 +10,9 @@ app.secret_key = "Repoyo"  # Change to a strong secret in production
 # ===================== DATABASE CONFIG =====================
 # Railway provides DATABASE_URL like:
 # mysql+pymysql://<user>:<password>@<host>:<port>/<database>
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("MYSQL_URL")  # Use the existing variable from Railway
 if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL environment variable not set!")
+    raise RuntimeError("MYSQL_URL environment variable not set!")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -85,3 +85,4 @@ if __name__ == "__main__":
         db.create_all()  # Ensure table exists
     port = int(os.getenv("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
