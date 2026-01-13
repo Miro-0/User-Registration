@@ -1,106 +1,78 @@
-import os
-import hashlib
-from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
+import os
 
-# ================= FLASK APP =================
 app = Flask(__name__)
-app.secret_key = "Repoyo"
+app.secret_key = "Repoyo"  # Change to a secure secret
 
-# ================= MYSQL (RAILWAY) =================
-DATABASE_URL = os.getenv("MYSQL_URL")
-if not DATABASE_URL:
-    raise RuntimeError("MYSQL_URL not found. Make sure MySQL service is attached.")
-
-# PyMySQL needed format
-if DATABASE_URL.startswith("mysql://"):
-    DATABASE_URL = DATABASE_URL.replace("mysql://", "mysql+pymysql://", 1)
-
-app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+# Configure database from Railway environment variable
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")  # Railway sets this
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
-# ================= MODEL =================
+# ===================== DATABASE MODEL =====================
 class User(db.Model):
+    __tablename__ = "user"  # ensures the table is exactly 'user'
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    gender = db.Column(db.String(20), nullable=False)
-    birthday = db.Column(db.Date, nullable=False)
-    phone = db.Column(db.String(20), nullable=False)
-    address = db.Column(db.String(200), nullable=False)
-    password = db.Column(db.String(200), nullable=False)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    gender = db.Column(db.String(10))
+    birthday = db.Column(db.Date)
+    phone = db.Column(db.String(20))
+    address = db.Column(db.String(100))
+    password = db.Column(db.String(255), nullable=False)
 
-# ================= ROUTES =================
-@app.route("/", methods=["GET", "POST"])
-@app.route("/register", methods=["GET", "POST"])
-def register():
-    if request.method == "POST":
-        try:
-            username = request.form.get("Username")
-            gender = request.form.get("Gender")
-            birthday_str = request.form.get("Birthday")
-            phone = request.form.get("phone")
-            address = request.form.get("address")
-            password = request.form.get("password")
-            confirm_password = request.form.get("confirm_password")
-
-            # --- VALIDATION ---
-            if password != confirm_password:
-                flash("Passwords do not match!", "error")
-                return redirect(url_for("register"))
-
-            if len(username) < 8 or len(username) > 16:
-                flash("Username must be 8-16 characters", "error")
-                return redirect(url_for("register"))
-
-            if User.query.filter_by(username=username).first():
-                flash("Username already exists!", "error")
-                return redirect(url_for("register"))
-
-            # --- HASH PASSWORD ---
-            hashed_password = hashlib.sha256(password.encode()).hexdigest()
-
-            # --- CONVERT BIRTHDAY TO DATE ---
-            try:
-                birthday = datetime.strptime(birthday_str, "%Y-%m-%d").date()
-            except ValueError:
-                flash("Invalid birthday format", "error")
-                return redirect(url_for("register"))
-
-            # --- CREATE USER ---
-            user = User(
-                username=username,
-                gender=gender,
-                birthday=birthday,
-                phone=phone,
-                address=address,
-                password=hashed_password
-            )
-
-            db.session.add(user)
-            db.session.commit()
-
-            flash("Registered successfully!", "success")
-            return redirect(url_for("register"))
-
-        except Exception as e:
-            db.session.rollback()
-            flash(f"Error: {str(e)}", "error")
-            return redirect(url_for("register"))
-
+# ===================== ROUTES =====================
+@app.route("/")
+def index():
     return render_template("register.html")
 
-# ================= ERROR SAFETY =================
-@app.errorhandler(404)
-def page_not_found(e):
-    return redirect(url_for("register"))
+@app.route("/register", methods=["POST"])
+def register():
+    username = request.form.get("username")
+    gender = request.form.get("gender")
+    birthday = request.form.get("birthday")
+    phone = request.form.get("phone")
+    address = request.form.get("address")
+    password = request.form.get("password")
 
-# ================= START =================
+    if User.query.filter_by(username=username).first():
+        return "Username already exists! Please choose another.", 400
+
+    hashed_password = generate_password_hash(password)
+    new_user = User(
+        username=username,
+        gender=gender,
+        birthday=birthday,
+        phone=phone,
+        address=address,
+        password=hashed_password
+    )
+    db.session.add(new_user)
+    db.session.commit()
+
+    return render_template("success.html")  # <-- Redirect to success page
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        user = User.query.filter_by(username=username).first()
+        if user and check_password_hash(user.password, password):
+            return f"Welcome, {username}!"
+        else:
+            return "Invalid username or password", 401
+    return render_template("login.html")
+
+@app.route("/users")
+def users():
+    all_users = User.query.all()
+    return render_template("users.html", users=all_users)  # You need a simple users.html
+
+# ===================== RUN APP =====================
 if __name__ == "__main__":
     with app.app_context():
-        db.create_all()  # ensures tables are created before starting
-
-    # Properly closed parentheses for Flask app
+        db.create_all()  # ensures the 'user' table exists in MySQL
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
