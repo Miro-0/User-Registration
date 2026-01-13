@@ -100,5 +100,7 @@ def page_not_found(e):
 # ================= START =================
 if __name__ == "__main__":
     with app.app_context():
-        db.create_all()
+        db.create_all()  # ensures tables are created before starting
+
+    # Properly closed parentheses for Flask app
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
