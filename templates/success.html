@@ -8,7 +8,7 @@
 <style>
     body {
         min-height: 100vh;
-        /* Uses the same background as your register.html */
+        /* Matches the background logic in your register.html */
         background-image: url("{{ url_for('static', filename='images/photo.jpg') }}");
         background-size: cover;
         background-position: center;
@@ -30,60 +30,67 @@
     }
 
     .message-box {
-        /* Matching the 'form-box' style from your register.html */
-        background: rgba(0, 0, 0, 0.7);
+        /* Matches the form-box style in your register.html */
+        background: rgba(0, 0, 0, 0.6);
         backdrop-filter: blur(10px);
-        padding: 50px;
+        padding: 40px;
         border-radius: 15px;
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
         text-align: center;
         color: white;
-        max-width: 500px;
+        max-width: 450px;
         width: 100%;
     }
 
     h2 {
         margin-bottom: 20px;
-        font-size: 28px;
-        color: #fff;
+        color: #ffffff;
     }
 
     p {
         margin-bottom: 30px;
-        font-size: 18px;
-        color: #ddd;
+        color: #cccccc;
     }
 
-    /* Matching the button style from your users.html and register.html */
+    /* Common button styling matching your overall theme */
     .btn {
         display: block;
-        padding: 12px;
+        padding: 14px;
         margin-bottom: 15px;
         text-decoration: none;
         border-radius: 8px;
-        font-weight: bold;
-        transition: 0.3s;
+        font-weight: 600;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
         text-align: center;
     }
 
-    .btn-primary {
-        background: #4CAF50; /* Green from your users.html header */
+    .btn:hover {
+        transform: translateY(-2px);
+    }
+
+    /* Option 1: Green from your users.html table header */
+    .btn-view {
+        background: #4CAF50;
         color: white;
     }
 
-    .btn-primary:hover {
-        background: #45a049;
-        transform: scale(1.02);
-    }
-
-    .btn-secondary {
+    /* Option 2: Subtle style for back to registration */
+    .btn-back {
         background: rgba(255, 255, 255, 0.1);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.2);
+    /* Option 3: Special Dino feature button */
+    .btn-dino {
+        background: #555555;
+        color: white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .btn-dino:hover {
+        background: #777777;
+        box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
     }
 </style>
 </head>
@@ -91,11 +98,14 @@
 
 <div class="container">
     <div class="message-box">
-        <h2 style="color: #4CAF50;">✔ Registration Successful!</h2>
-        <p>Your details have been securely saved to the Railway MySQL database.</p>
+        <h2>✔ Success!</h2>
+        <p>Your information has been saved successfully.</p>
         
-        <a href="/users" class="btn btn-primary">View Registered Users</a>
-        <a href="/" class="btn btn-secondary">Add Another User</a>
+        <a href="/users" class="btn btn-view">View Registered Users</a>
+        
+        <a href="/" class="btn btn-back">Back to Registration</a>
+
+        <a href="https://dino-chrome.com/" target="_blank" class="btn btn-dino">🦖 Play Chrome Dino Game</a>
     </div>
 </div>
 
