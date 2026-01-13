@@ -5,32 +5,29 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 app.secret_key = "Repoyo"
 
-def env(name):
-    value = os.getenv(name)
-    if not value:
-        raise RuntimeError(f"Missing environment variable: {name}")
-    return value
+# ================= RAILWAY MYSQL =================
+DATABASE_URL = os.getenv("MYSQL_URL")
 
-MYSQL_USER = env("MYSQL_USER")
-MYSQL_PASSWORD = env("MYSQL_PASSWORD")
-MYSQL_HOST = env("MYSQL_HOST")
-MYSQL_PORT = env("MYSQL_PORT")
-MYSQL_DATABASE = env("MYSQL_DATABASE")
+if not DATABASE_URL:
+    raise RuntimeError("MYSQL_URL not found. Make sure MySQL service is attached.")
 
-app.config["SQLALCHEMY_DATABASE_URI"] = (
-    f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}"
-    f"@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}"
-)
+# Fix SQLAlchemy MySQL URL
+if DATABASE_URL.startswith("mysql://"):
+    DATABASE_URL = DATABASE_URL.replace("mysql://", "mysql+pymysql://", 1)
+
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
+# ================= MODEL =================
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
 
+# ================= ROUTES =================
 @app.route("/", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -51,5 +48,9 @@ def register():
 
     return render_template("register.html")
 
+# ================= START =================
 if __name__ == "__main__":
-    app.run()
+    with app.app_context():
+        db.create_all()  # creates tables automatically in Railway MySQL
+
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
