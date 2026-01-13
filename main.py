@@ -5,17 +5,17 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 app.secret_key = "Repoyo"
 
-def env(name, alt=None):
-    value = os.getenv(name) or (os.getenv(alt) if alt else None)
+def env(name):
+    value = os.getenv(name)
     if not value:
         raise RuntimeError(f"Missing environment variable: {name}")
     return value
 
-MYSQL_USER = env("MYSQLUSER")
-MYSQL_PASSWORD = env("MYSQLPASSWORD")
-MYSQL_HOST = env("MYSQLHOST")
-MYSQL_PORT = env("MYSQLPORT")
-MYSQL_DATABASE = env("MYSQLDATABASE", "MYSQL_DB")  # ← IMPORTANT FIX
+MYSQL_USER = env("MYSQL_USER")
+MYSQL_PASSWORD = env("MYSQL_PASSWORD")
+MYSQL_HOST = env("MYSQL_HOST")
+MYSQL_PORT = env("MYSQL_PORT")
+MYSQL_DATABASE = env("MYSQL_DATABASE")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = (
     f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}"
@@ -52,4 +52,4 @@ def register():
     return render_template("register.html")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
