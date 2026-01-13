@@ -1,80 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registered Users</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registered Users</title>
+<style>
+    body {
+        min-height: 100vh;
+        background-image: url("{{ url_for('static', filename='images/photo.jpg') }}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 
-    <style>
-        body {
-            background: #eef2f3;
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
+    .container {
+        width: 95%;
+        max-width: 900px;
+        padding: 20px;
+    }
 
-        h2 {
-            text-align: center;
-        }
+    .list-box {
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(10px);
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+        color: #f0f0f0;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-        }
+    h2 { text-align: center; color: #ffffff; margin-bottom: 20px; }
 
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-            text-align: center;
-        }
+    .table-responsive {
+        overflow-x: auto;
+    }
 
-        th {
-            background: #4CAF50;
-            color: white;
-        }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
 
-        tr:hover {
-            background: #f1f1f1;
-        }
+    th {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        padding: 12px;
+        text-align: left;
+        border-bottom: 2px solid #444;
+    }
 
-        a {
-            display: inline-block;
-            margin-top: 20px;
-            text-decoration: none;
-            color: #333;
-            font-weight: bold;
-        }
-    </style>
+    td {
+        padding: 12px;
+        border-bottom: 1px solid #333;
+        font-size: 14px;
+    }
+
+    tr:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .back-btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background: #4a4a4a;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: 0.3s;
+    }
+
+    .back-btn:hover { background: #666; }
+</style>
 </head>
 <body>
 
-<h2>Registered Users</h2>
+<div class="container">
+    <div class="list-box">
+        <h2>Registered Users</h2>
+        
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Gender</th>
+                        <th>Birthday</th>
+                        <th>Phone</th>
+                        <th>Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.gender }}</td>
+                        <td>{{ user.birthday }}</td>
+                        <td>{{ user.phone }}</td>
+                        <td>{{ user.address }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-<table>
-    <tr>
-        <th>ID</th>
-        <th>Username</th>
-        <th>Gender</th>
-        <th>Birthdate</th>
-        <th>Cellphone</th>
-        <th>Address</th>
-    </tr>
-
-    {% for user in users %}
-    <tr>
-        <td>{{ user.id }}</td>
-        <td>{{ user.username }}</td>
-        <td>{{ user.gender }}</td>
-        <td>{{ user.birthdate }}</td>
-        <td>{{ user.cellphone_number }}</td>
-        <td>{{ user.address }}</td>
-    </tr>
-    {% endfor %}
-</table>
-
-<a href="/">⬅ Back to Registration</a>
+        <a href="/" class="back-btn">⬅ Back to Registration</a>
+    </div>
+</div>
 
 </body>
 </html>
