@@ -1,27 +1,24 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
 import os
 
 app = Flask(__name__)
-app.secret_key = "Repoyo"  # Change to a strong secret in production
+app.secret_key = "Repoyo"  # Change to a secure secret
 
 # ===================== DATABASE CONFIG =====================
-# Railway provides DATABASE_URL like:
-# mysql+pymysql://<user>:<password>@<host>:<port>/<database>
 DATABASE_URL = os.getenv("MYSQL_URL")  # Use the existing variable from Railway
 if not DATABASE_URL:
     raise RuntimeError("MYSQL_URL environment variable not set!")
 
-app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
 # ===================== DATABASE MODEL =====================
 class User(db.Model):
-    __tablename__ = "user"
+    __tablename__ = "user"  # ensures the table is exactly 'user'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     gender = db.Column(db.String(10))
@@ -39,8 +36,7 @@ def index():
 def register():
     username = request.form.get("username")
     gender = request.form.get("gender")
-    birthday_str = request.form.get("birthday")
-    birthday = datetime.strptime(birthday_str, "%Y-%m-%d").date() if birthday_str else None
+    birthday = request.form.get("birthday")
     phone = request.form.get("phone")
     address = request.form.get("address")
     password = request.form.get("password")
@@ -60,7 +56,7 @@ def register():
     db.session.add(new_user)
     db.session.commit()
 
-    return render_template("success.html")
+    return render_template("success.html")  # <-- Redirect to success page
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -77,12 +73,10 @@ def login():
 @app.route("/users")
 def users():
     all_users = User.query.all()
-    return render_template("users.html", users=all_users)
+    return render_template("users.html", users=all_users)  # You need a simple users.html
 
 # ===================== RUN APP =====================
 if __name__ == "__main__":
     with app.app_context():
-        db.create_all()  # Ensure table exists
-    port = int(os.getenv("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
-
+        db.create_all()  # ensures the 'user' table exists in MySQL/Postgres
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
