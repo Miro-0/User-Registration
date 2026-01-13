@@ -4,147 +4,77 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Registration Form</title>
-
 <style>
     body {
         min-height: 100vh;
-        /* Keeps your original background image logic */
         background-image: url("{{ url_for('static', filename='images/photo.jpg') }}");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
         background-attachment: fixed;
-        font-family: Arial, sans-serif;
-    }
-
-    * {
+        font-family: 'Segoe UI', Arial, sans-serif;
         margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     .container {
         width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        max-width: 450px;
         padding: 20px;
-        min-height: 100vh;
     }
 
     .form-box {
-        background: rgba(0, 0, 0, 0.6);
+        background: rgba(0, 0, 0, 0.7);
         backdrop-filter: blur(10px);
         padding: 40px;
         border-radius: 15px;
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
-        width: 100%;
-        max-width: 450px;
         color: #f0f0f0;
     }
 
-    h2 {
-        text-align: center;
-        color: #ffffff;
-        margin-bottom: 10px;
-    }
+    h2 { text-align: center; color: #ffffff; margin-bottom: 10px; }
+    .subtitle { text-align: center; color: #cccccc; margin-bottom: 30px; font-size: 14px; }
 
-    .subtitle {
-        text-align: center;
-        color: #cccccc;
-        margin-bottom: 30px;
-        font-size: 14px;
-    }
-
-    /* --- NEW STYLES FOR FLASH MESSAGES --- */
-    .flash-container {
-        margin-bottom: 20px;
-        width: 100%;
-    }
-
+    /* Flash Messages */
     .flash-message {
         padding: 12px;
         border-radius: 8px;
         text-align: center;
         font-size: 14px;
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
-
-    .flash-message.error {
-        background: rgba(255, 99, 71, 0.2);
-        border: 1px solid #ff6347;
-        color: #ffcccb;
-    }
-
-    .flash-message.success {
-        background: rgba(144, 238, 144, 0.2);
-        border: 1px solid #90ee90;
-        color: #90ee90;
-    }
-    /* ------------------------------------- */
-
-    .form-group {
         margin-bottom: 20px;
     }
+    .flash-message.error { background: rgba(255, 99, 71, 0.2); border: 1px solid #ff6347; color: #ffcccb; }
 
-    label {
-        display: block;
-        color: #ddd;
-        margin-bottom: 8px;
-        font-weight: 500;
-        font-size: 14px;
-    }
-
-    input {
+    .form-group { margin-bottom: 15px; }
+    label { display: block; color: #ddd; margin-bottom: 5px; font-size: 14px; }
+    
+    input[type="text"], input[type="password"], input[type="date"] {
         width: 100%;
-        padding: 12px 15px;
-        border: 2px solid #333;
+        padding: 12px;
+        border: 1px solid #444;
         border-radius: 8px;
         background: rgba(255, 255, 255, 0.1);
         color: #fff;
-        font-size: 15px;
-        transition: all 0.3s ease;
-    }
-
-    input:focus {
-        border-color: #667eea;
         outline: none;
-        background: rgba(255, 255, 255, 0.15);
     }
 
+    .gender-group { display: flex; justify-content: space-around; padding: 10px 0; }
     .btn-submit {
         width: 100%;
         padding: 14px;
-        background: darkgrey;
+        background: #4a4a4a;
         color: white;
         border: none;
-        font-size: 16px;
         border-radius: 8px;
         font-weight: 600;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
         cursor: pointer;
         margin-top: 10px;
+        transition: 0.3s;
     }
-
-    .btn-submit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(118, 75, 162, 0.5);
-    }
-
-    .gender-group {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 20px;
-    }
-
-    .gender-group label {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        font-size: 14px;
-        color: #ddd;
-    }
+    .btn-submit:hover { background: #666; transform: translateY(-2px); }
+    a { color: #aaa; text-decoration: none; display: block; text-align: center; margin-top: 15px; font-size: 13px; }
 </style>
 </head>
 <body>
@@ -156,58 +86,53 @@
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        <div class="flash-container">
           {% for category, message in messages %}
-            <div class="flash-message {{ category }}">
-              {{ message }}
-            </div>
+            <div class="flash-message {{ category }}">{{ message }}</div>
           {% endfor %}
-        </div>
       {% endif %}
     {% endwith %}
 
     <form action="/register" method="POST" onsubmit="return checkPassword()">
-
       <div class="form-group">
-        <label for="Username">Username</label>
-        <input type="text" name="Username" minlength="8" maxlength="16" required>
+        <label>Username</label>
+        <input type="text" name="username" required>
       </div>
 
-      <label for="Gender">Gender</label>
+      <label>Gender</label>
       <div class="gender-group">
-        <label><input type="radio" value="Male" name="Gender" required> Male</label>
-        <label><input type="radio" value="Female" name="Gender"> Female</label>
-        <label><input type="radio" value="Other" name="Gender"> Other</label>
+        <label><input type="radio" name="gender" value="Male" required> Male</label>
+        <label><input type="radio" name="gender" value="Female"> Female</label>
+        <label><input type="radio" name="gender" value="Other"> Other</label>
       </div>
 
       <div class="form-group">
-        <label for="Birthday">BirthDate</label>
-        <input type="date" name="Birthday" required>
+        <label>BirthDate</label>
+        <input type="date" name="birthday" required>
       </div>
 
       <div class="form-group">
-        <label for="phone">Cellphone Number</label>
-        <input type="text" id="phone" name="phone" placeholder="09171234567" required>
+        <label>Cellphone Number</label>
+        <input type="text" name="phone" placeholder="09171234567" required>
       </div>
 
       <div class="form-group">
-        <label for="address">Address</label>
-        <input type="text" name="address" placeholder="Enter your address" required>
+        <label>Address</label>
+        <input type="text" name="address" required>
       </div>
 
       <div class="form-group">
-        <label for="password">Password</label>
+        <label>Password</label>
         <input type="password" id="password" name="password" required>
       </div>
 
       <div class="form-group">
-        <label for="confirm_password">Confirm Password</label>
-        <input type="password" id="confirm_password" name="confirm_password" required>
-        <p id="message" style="color: red; font-size: 14px; margin-top: 5px;"></p>
+        <label>Confirm Password</label>
+        <input type="password" id="confirm_password" required>
+        <p id="message" style="font-size: 12px; margin-top: 5px;"></p>
       </div>
 
       <button type="submit" class="btn-submit">Register</button>
-
+      <a href="/users">View Registered Users</a>
     </form>
   </div>
 </div>
@@ -217,18 +142,13 @@ function checkPassword() {
   const password = document.getElementById("password").value;
   const confirm = document.getElementById("confirm_password").value;
   const message = document.getElementById("message");
-
   if (password !== confirm) {
     message.textContent = "Passwords do not match!";
-    message.style.color = "red";
+    message.style.color = "#ff6347";
     return false;
-  } else {
-    message.textContent = "Passwords match!";
-    message.style.color = "lightgreen";
-    return true;
   }
+  return true;
 }
 </script>
-
 </body>
 </html>
