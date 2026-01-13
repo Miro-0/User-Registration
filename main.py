@@ -4,12 +4,12 @@ from werkzeug.security import generate_password_hash
 import os
 from datetime import datetime
 
-app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "dev_key_only")
+app = Flask(__main__)
+app.secret_key = os.getenv("Repoyo")
 
 # ===================== DATABASE CONFIGURATION =====================
 # Railway provides DATABASE_URL. We use pymysql as the driver for MySQL.
-database_url = os.getenv("DATABASE_URL")
+database_url = os.getenv("MYSQL_URL")
 
 if database_url:
     if database_url.startswith("postgres://"):
@@ -97,3 +97,4 @@ if __name__ == "__main__":
     
     port = int(os.getenv("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
