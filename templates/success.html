@@ -1,41 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration Successful</title>
-    <style>
-        body {
-            background: #eef2f3;
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            text-align: center;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registration Successful</title>
 
-        .message-box {
-            background: white;
-            display: inline-block;
-            padding: 30px 50px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
+<style>
+    body {
+        min-height: 100vh;
+        /* Uses the same background as your register.html */
+        background-image: url("{{ url_for('static', filename='images/photo.jpg') }}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 
-        a {
-            display: block;
-            margin-top: 20px;
-            text-decoration: none;
-            color: #333;
-            font-weight: bold;
-        }
-    </style>
+    .container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .message-box {
+        /* Matching the 'form-box' style from your register.html */
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(10px);
+        padding: 50px;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+        text-align: center;
+        color: white;
+        max-width: 500px;
+        width: 100%;
+    }
+
+    h2 {
+        margin-bottom: 20px;
+        font-size: 28px;
+        color: #fff;
+    }
+
+    p {
+        margin-bottom: 30px;
+        font-size: 18px;
+        color: #ddd;
+    }
+
+    /* Matching the button style from your users.html and register.html */
+    .btn {
+        display: block;
+        padding: 12px;
+        margin-bottom: 15px;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: 0.3s;
+        text-align: center;
+    }
+
+    .btn-primary {
+        background: #4CAF50; /* Green from your users.html header */
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #45a049;
+        transform: scale(1.02);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+</style>
 </head>
 <body>
 
-<div class="message-box">
-    <h2>Registration Successful!</h2>
-    <p>Your information has been saved successfully.</p>
-    <a href="/users">View Registered Users</a>
-    <a href="/">Back to Registration</a>
+<div class="container">
+    <div class="message-box">
+        <h2 style="color: #4CAF50;">✔ Registration Successful!</h2>
+        <p>Your details have been securely saved to the Railway MySQL database.</p>
+        
+        <a href="/users" class="btn btn-primary">View Registered Users</a>
+        <a href="/" class="btn btn-secondary">Add Another User</a>
+    </div>
 </div>
 
 </body>
