@@ -24,22 +24,20 @@ class User(db.Model):
     address = db.Column(db.String(200))
     password = db.Column(db.String(120), nullable=False)
 
-# --- THE FIX: THIS RUNS EVERY TIME GUNICORN STARTS ---
+
 with app.app_context():
     db.create_all()
 
-# --- ROUTES ---
 @app.route('/')
 def index():
     return render_template('register.html')
 
 @app.route('/register', methods=['POST'])
 def register():
-    # Note: Case sensitive! Matches 'name' in your register.html
     new_user = User(
         username=request.form.get('username'),
-        gender=request.form.get('Gender'),   # Changed to capital G
-        birthday=request.form.get('Birthday'), # Changed to capital B
+        gender=request.form.get('gender'),        
+        birthday=request.form.get('birthday'),    
         phone=request.form.get('phone'),
         address=request.form.get('address'),
         password=request.form.get('password')
@@ -49,6 +47,7 @@ def register():
     db.session.commit()
     return render_template('success.html')
 
+
 @app.route('/users')
 def view_users():
     users = User.query.all()
@@ -56,3 +55,4 @@ def view_users():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
+
