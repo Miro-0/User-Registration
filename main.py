@@ -1,5 +1,6 @@
 import os
-from flask import Flask, render_template, request, redirect
+from datetime import date
+from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -24,10 +25,11 @@ class User(db.Model):
     address = db.Column(db.String(200))
     password = db.Column(db.String(120), nullable=False)
 
-
+# --- CREATE TABLES ---
 with app.app_context():
     db.create_all()
 
+# --- ROUTES ---
 @app.route('/')
 def index():
     return render_template('register.html')
@@ -36,8 +38,8 @@ def index():
 def register():
     new_user = User(
         username=request.form.get('username'),
-        gender=request.form.get('gender'),        
-        birthday=request.form.get('birthday'),    
+        gender=request.form.get('gender'),
+        birthday=request.form.get('birthday'),
         phone=request.form.get('phone'),
         address=request.form.get('address'),
         password=request.form.get('password')
@@ -47,12 +49,33 @@ def register():
     db.session.commit()
     return render_template('success.html')
 
-
 @app.route('/users')
 def view_users():
     users = User.query.all()
-    return render_template('users.html', users=users)
+
+    total_users = len(users)
+    male = User.query.filter_by(gender="Male").count()
+    female = User.query.filter_by(gender="Female").count()
+    other = User.query.filter_by(gender="Other").count()
+
+    # Average age calculation
+    ages = []
+    for u in users:
+        if u.birthday:
+            birth_year = int(u.birthday.split("-")[0])
+            ages.append(date.today().year - birth_year)
+
+    avg_age = round(sum(ages) / len(ages), 1) if ages else "N/A"
+
+    return render_template(
+        'users.html',
+        users=users,
+        total_users=total_users,
+        male=male,
+        female=female,
+        other=other,
+        avg_age=avg_age
+    )
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
-
