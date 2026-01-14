@@ -4,116 +4,212 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Registered Users</title>
+
 <style>
-    body {
-        min-height: 100vh;
-        background-image: url("{{ url_for('static', filename='images/photo.jpg') }}");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        font-family: 'Segoe UI', Arial, sans-serif;
-        margin: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+body {
+    min-height: 100vh;
+    background-image: url("{{ url_for('static', filename='images/photo.jpg') }}");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-    .container {
-        width: 95%;
-        max-width: 900px;
-        padding: 20px;
-    }
+.container {
+    width: 95%;
+    max-width: 900px;
+    padding: 20px;
+}
 
-    .list-box {
-        background: rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(10px);
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
-        color: #f0f0f0;
-    }
+.list-box {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    color: #f0f0f0;
+}
 
-    h2 { text-align: center; color: #ffffff; margin-bottom: 20px; }
+h2 {
+    text-align: center;
+    color: #ffffff;
+    margin-bottom: 10px;
+}
 
-    .table-responsive {
-        overflow-x: auto;
-    }
+/* DASHBOARD */
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 20px;
-    }
+.card {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 18px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+}
 
-    th {
-        background: rgba(255, 255, 255, 0.1);
-        color: #fff;
-        padding: 12px;
-        text-align: left;
-        border-bottom: 2px solid #444;
-    }
+.card h3 {
+    margin: 0;
+    font-size: 26px;
+    color: #4CAF50;
+}
 
-    td {
-        padding: 12px;
-        border-bottom: 1px solid #333;
-        font-size: 14px;
-    }
+.card p {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #ccc;
+}
 
-    tr:hover {
-        background: rgba(255, 255, 255, 0.05);
-    }
+.table-responsive {
+    overflow-x: auto;
+}
 
-    .back-btn {
-        display: inline-block;
-        padding: 10px 20px;
-        background: #4a4a4a;
-        color: white;
-        text-decoration: none;
-        border-radius: 8px;
-        font-size: 14px;
-        transition: 0.3s;
-    }
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
 
-    .back-btn:hover { background: #666; }
+th {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 12px;
+    text-align: left;
+    border-bottom: 2px solid #444;
+}
+
+td {
+    padding: 12px;
+    border-bottom: 1px solid #333;
+    font-size: 14px;
+}
+
+tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.back-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #4a4a4a;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.back-btn:hover {
+    background: #666;
+}
+
+/* LIGHT MODE */
+.light-mode .list-box {
+    background: rgba(255, 255, 255, 0.85);
+    color: #222;
+}
+
+.light-mode th {
+    background: rgba(0, 0, 0, 0.1);
+    color: #000;
+}
+
+.light-mode td {
+    color: #111;
+}
 </style>
 </head>
+
 <body>
 
 <div class="container">
-    <div class="list-box">
-        <h2>Registered Users</h2>
-        
-        <div class="table-responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Username</th>
-                        <th>Gender</th>
-                        <th>Birthday</th>
-                        <th>Phone</th>
-                        <th>Address</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for user in users %}
-                    <tr>
-                        <td>{{ user.id }}</td>
-                        <td>{{ user.username }}</td>
-                        <td>{{ user.gender }}</td>
-                        <td>{{ user.birthday }}</td>
-                        <td>{{ user.phone }}</td>
-                        <td>{{ user.address }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+<div class="list-box">
 
-        <a href="/" class="back-btn">⬅ Back to Registration</a>
+<h2>Registered Users</h2>
+
+<button id="toggleTheme" class="back-btn" style="float:right; margin-bottom:15px;">
+    🌙 Toggle Theme
+</button>
+
+<div class="dashboard">
+    <div class="card">
+        <h3>{{ total_users }}</h3>
+        <p>Total Users</p>
+    </div>
+    <div class="card">
+        <h3>{{ male }}</h3>
+        <p>Male</p>
+    </div>
+    <div class="card">
+        <h3>{{ female }}</h3>
+        <p>Female</p>
+    </div>
+    <div class="card">
+        <h3>{{ other }}</h3>
+        <p>Other</p>
+    </div>
+    <div class="card">
+        <h3>{{ avg_age }}</h3>
+        <p>Avg Age</p>
     </div>
 </div>
+
+<div class="table-responsive">
+<table>
+<thead>
+<tr>
+    <th>ID</th>
+    <th>Username</th>
+    <th>Gender</th>
+    <th>Birthday</th>
+    <th>Phone</th>
+    <th>Address</th>
+</tr>
+</thead>
+<tbody>
+{% for user in users %}
+<tr>
+    <td>{{ user.id }}</td>
+    <td>{{ user.username }}</td>
+    <td>{{ user.gender }}</td>
+    <td>{{ user.birthday }}</td>
+    <td>{{ user.phone }}</td>
+    <td>{{ user.address }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+
+<a href="/" class="back-btn">⬅ Back to Registration</a>
+
+</div>
+</div>
+
+<script>
+const toggleBtn = document.getElementById("toggleTheme");
+
+if (localStorage.getItem("theme") === "light") {
+    document.body.classList.add("light-mode");
+}
+
+toggleBtn.addEventListener("click", () => {
+    document.body.classList.toggle("light-mode");
+    localStorage.setItem(
+        "theme",
+        document.body.classList.contains("light-mode") ? "light" : "dark"
+    );
+});
+</script>
 
 </body>
 </html>
